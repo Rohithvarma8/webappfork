@@ -1,11 +1,15 @@
-const express = require('express')
-const app = express()
-const port = 3000
+const express = require('express');
+const dotenv = require('dotenv');
+const initialize = require('./app/app');
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+dotenv.config();
 
+const app = express();
+const port = process.env.PORT;
+
+initialize(app);
+
+// Check if server is running on the port
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Healthz application is running on ${port}`);
+});
