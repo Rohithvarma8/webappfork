@@ -5,6 +5,14 @@ const healthCheckStatus = async(req,res,err) => {
   // check for payload
   if (req.headers['content-length'] && parseInt(req.headers['content-length'], 10) > 0) {
     res.setHeader('Cache-Control', 'no-cache');
+    console.log('No Payload!!!');
+    return res.status(400).send(); // Bad Request
+  }
+
+  // Check for queries
+  if (Object.keys(req.query).length > 0) {
+    res.setHeader('Cache-Control', 'no-cache');
+    console.log('No Queries!!!')
     return res.status(400).send(); // Bad Request
   }
   
