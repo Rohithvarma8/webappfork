@@ -4,6 +4,43 @@
 
 The Health Check API is designed to monitor the health of the application instance, ensuring that it can handle requests effectively. It helps prevent routing traffic to unhealthy instances and improves the user experience by detecting and alerting when the service is down or unable to process requests.
 
+## Initialization
+
+To set up and run the project locally, follow these steps:
+
+1. **Clone the repository**:
+
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
+   ```
+
+2. **Install dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**:
+
+   - Create a `.env` file in the root directory.
+   - Add the following variables:
+     ```plaintext
+     PORT=5001
+     DB_HOST=localhost
+     DB_PORT= //your_db_port_number
+     DB_USERNAME= //your_db_user
+     DB_NAME= //your_db_name
+     DB_PASSWORD= //your_db_password
+     ```
+
+4. Run the Application
+
+   ```
+   node server.js
+   ```
+
+
 ## Database Table
 
 A table named `health_check` is created with the following schema:
