@@ -42,10 +42,9 @@ const initialize = (app) => {
   app.use('/healthz', healthCheckRoute);
 
   app.use((req, res) => {
-    console.error('only healthz endpoint works');
+    console.log('only healthz endpoint works');
     res.status(404).send(); // Send 404 status with no body
   });
 };
 
 module.exports = initialize;
-
