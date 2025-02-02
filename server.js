@@ -9,7 +9,9 @@ const port = process.env.PORT;
 
 initialize(app);
 
-// Check if server is running on the port
-app.listen(port, () => {
+// Start the server and export it for Jest testing
+const server = app.listen(port, () => {
   console.log(`Healthz application is running on ${port}`);
 });
+
+module.exports = server; // Export the server instance
