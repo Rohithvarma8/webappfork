@@ -3,11 +3,11 @@
 #paths
 
 BASE_DIR="/opt/csye6225"
-APP_DIR="$BASE_DIR/webapp-main"
+APP_DIR="$BASE_DIR/webapp"
 LOG_FILE="/var/log/csye6225_setup.log"
 LINUX_GROUP="csye6225_cloud"
 LINUX_USER="rohith"
-ZIP_FILE="/tmp/webapp-main"
+ZIP_FILE="/tmp/webapp"
 
 #log enable
 exec > >(tee -a "$LOG_FILE") 2>&1
