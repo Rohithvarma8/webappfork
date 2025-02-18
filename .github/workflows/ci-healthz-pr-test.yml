@@ -42,6 +42,13 @@ jobs:
           sudo systemctl start postgresql
           sudo systemctl enable postgresql
 
+      - name: Debug Environment Variables
+        run: |
+          echo "Checking Environment Variables"
+          echo "PG_USER: $PG_USER"
+          echo "PG_DATABASE: $PG_DATABASE"
+          echo "PG_PASSWORD length: ${#PG_PASSWORD}"
+
       - name: Ensure Database Exists and Configure User
         run: |
           echo "Checking if database $PG_DATABASE exists"
@@ -49,16 +56,21 @@ jobs:
 
           if [ "$DB_EXISTS" != "1" ]; then
             echo "Database $PG_DATABASE does not exist. Creating now..."
-            sudo -u postgres psql -c "CREATE DATABASE $PG_DATABASE OWNER $PG_USER;"
+            sudo -u postgres psql -c "CREATE DATABASE \"$PG_DATABASE\" OWNER \"$PG_USER\";"
           else
             echo "Database $PG_DATABASE already exists."
           fi
 
           echo "Updating user password"
-          sudo -u postgres psql -c "ALTER USER $PG_USER WITH PASSWORD '$PG_PASSWORD';"
+          sudo -u postgres psql -c "ALTER USER \"$PG_USER\" WITH PASSWORD '$PG_PASSWORD';"
+
+      - name: Export Secrets to Environment
+        run: echo "PG_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Execute test suite
-        run: npm test
+        run: |
+          export PG_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          npm test
 
       - name: Publish test results
         if: success()
