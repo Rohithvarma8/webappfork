@@ -7,7 +7,7 @@ describe('Healthz API Tests', () => {
     beforeAll(async () => {
         try {
             console.log("Synchronizing database...");
-            await sequelize.sync({ force: true }); 
+            await sequelize.sync({ alter: true }); 
             console.log("Database synchronized!");
         } catch (error) {
             console.error("Database synchronization failed:", error.message);
