@@ -34,7 +34,7 @@ const initialize = (app) => {
       console.error('Database connection failed:', err.message);
     });
 
-  sequelize.sync({ alter: true })
+  sequelize.sync({ force: true })
     .then(() => console.log('Database synchronized'))
     .catch((err) => console.error('Database synchronization failed:', err.message));
 
