@@ -1,4 +1,4 @@
-name: CI healthCheck test
+name: Node.js Tests
 
 on:
   pull_request:
@@ -6,99 +6,52 @@ on:
       - main
 
 jobs:
-  test:
-    name: Run Tests
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     env:
-      APP_PORT: ${{ secrets.PORT }}
-      PG_HOST: ${{ secrets.DB_HOST }}
-      PG_PORT: ${{ secrets.DB_PORT }}
-      PG_USER: ${{ secrets.DB_USERNAME }}
-      PG_DATABASE: ${{ secrets.DB_NAME }}
-      PG_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PORT: ${{ secrets.PORT }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USER: ${{ secrets.DB_USERNAME }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_DIALECT: ${{ secrets.DB_DIALECT }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     steps:
-      - name: Checkout repository
+      - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js environment
+      - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18  
+          node-version: 16  # Specify your Node.js version
 
-      - name: Install project dependencies
-        run: npm install 
+      - name: Install dependencies
+        run: npm install
 
-      - name: Install PostgreSQL and dependencies
+      - name: Install PostgreSQL
         run: |
-          echo "Setting up PostgreSQL"
-          sudo apt-get update
+          echo "Installing PostgreSQL"
+          sudo apt-get update -y
           sudo apt-get install -y postgresql postgresql-contrib
 
-      - name: Start PostgreSQL Service
+      - name: Configure PostgreSQL without systemd
         run: |
-          echo "Starting PostgreSQL service"
-          sudo systemctl start postgresql
-          sudo systemctl enable postgresql
-          sudo systemctl status postgresql || true
+          echo "Starting PostgreSQL manually"
+          sudo service postgresql start
 
-      - name: Ensure PostgreSQL User Exists
+      - name: Update database password
         run: |
-          echo "Checking if user exists..."
-          echo "version 3"
-          USER_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$PG_USER'")
-          
-          if [ "$USER_EXISTS" != "1" ]; then
-            echo "User $PG_USER does not exist. Creating now..."
-            sudo -u postgres psql -c "CREATE USER \"$PG_USER\" WITH PASSWORD '$PG_PASSWORD';"
-          else
-            echo "User $PG_USER already exists."
-          fi
+          echo "Updating database password"
+          sudo -u postgres psql -c "ALTER USER ${{secrets.DB_USER}} WITH PASSWORD '${{secrets.DB_PASSWORD}}';"
 
-      - name: Ensure Database Exists and Assign User
-        run: |
-          echo "Checking if database $PG_DATABASE exists"
-          DB_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$PG_DATABASE'")
+      - name: Run tests
+        run: npm test 
 
-          if [ "$DB_EXISTS" != "1" ]; then
-            echo "Database $PG_DATABASE does not exist. Creating now..."
-            sudo -u postgres psql -c "CREATE DATABASE \"$PG_DATABASE\" OWNER \"$PG_USER\";"
-          else
-            echo "Database $PG_DATABASE already exists."
-          fi
-
-      - name: Set Correct User Password
-        run: |
-          echo "Updating user password..."
-          sudo -u postgres psql -c "ALTER USER \"$PG_USER\" WITH PASSWORD '$PG_PASSWORD';"
-          echo "Password updated successfully!"
-
-      - name: Export Secrets to Environment
-        run: echo "PG_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-
-      - name: Debug Environment Variables
-        run: |
-          echo "Checking Environment Variables"
-          echo "PG_USER: $PG_USER"
-          echo "PG_DATABASE: $PG_DATABASE"
-          
-          if [ -z "$PG_PASSWORD" ]; then
-            echo "PG_PASSWORD is empty!"
-            exit 1
-          else
-            echo "PG_PASSWORD length: ${#PG_PASSWORD}"
-          fi
-
-      - name: Execute test suite
-        env:
-          PG_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: |
-          echo "Running tests..."
-          npm test
-
-      - name: Publish test results
+      - name: Success notification
         if: success()
         run: |
-          echo "healthz passed" >> $GITHUB_STEP_SUMMARY
-          echo "CAN MERGE" >> $GITHUB_STEP_SUMMARY
+          echo "All tests passed!" > $GITHUB_STEP_SUMMARY
+          echo "This PR can now be merged!" >> $GITHUB_STEP_SUMMARY
