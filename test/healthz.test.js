@@ -2,7 +2,6 @@ const request = require('supertest');
 const server = require('../server');
 const sequelize = require('./../config/database');
 
-
 describe('Healthz API Tests', () => {
 
     beforeAll(async () => {
