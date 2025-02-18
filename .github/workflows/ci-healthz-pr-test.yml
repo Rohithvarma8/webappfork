@@ -1,4 +1,4 @@
-name: Webapp CI
+name: Healthz PR Test
 
 on: 
   pull_request:
@@ -15,39 +15,36 @@ jobs:
       DB_PORT: ${{ secrets.DB_PORT }}
 
     steps:
-    - name: Checkout Repository
+    - name: Check the Repo
       uses: actions/checkout@v3
 
-    - name: Install Dependencies
+    - name: Installing Postgres 
       run: |
-        sudo apt update && sudo apt install -y postgresql postgresql-contrib
-        npm install
-
-    - name: Configure PostgreSQL
-      run: |
-        sudo systemctl start postgresql
+        sudo apt update 
+        sudo apt install -y postgresql postgresql-contrib
+    
+    - name: Installing node_modules
+      run: npm install
         
-    - name: Start PostgreSQL
+    - name: Starting postgres Service
       run: sudo systemctl start postgresql
 
-    - name: Create PostgreSQL User & Database
+    - name: Database and user setup
       run: |
         sudo -u postgres psql -c "CREATE ROLE $DB_USERNAME WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';"
         sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USERNAME;"
-      env:
-        DB_USERNAME: ${{ secrets.DB_USERNAME }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_NAME: ${{ secrets.DB_NAME }}
-    - name: Drop HealthChecks Table if Exists
+
+    - name: dropping the table 
       run: |
           sudo -u postgres psql -d $DB_NAME -c 'DROP TABLE IF EXISTS "HealthChecks" CASCADE;'
-    - name: Run Tests
+
+    - name: healthz api integration test
       run: npm test
 
-    - name: Post Job Cleanup
+    - name: post job clean up
       if: always()
       run: |
-        echo "🧹 Cleaning up orphan processes..."
+        echo "started cleaning"
         pkill -P $$ || true  # Kill all child processes
-        sudo systemctl stop postgresql  # Stop PostgreSQL after the job
-        echo "Cleanup complete!"
+        sudo systemctl stop postgresql  
+        echo "done with cleaning"
