@@ -45,7 +45,7 @@ jobs:
       - name: Update database password
         run: |
           echo "Updating database password"
-          sudo -u postgres psql -c "ALTER USER ${{secrets.DB_USER}} WITH PASSWORD '${{secrets.DB_PASSWORD}}';"
+          sudo -u postgres psql -c "ALTER USER ${{secrets.DB_USERNAME}} WITH PASSWORD '${{secrets.DB_PASSWORD}}';"
 
       - name: Run tests
         run: npm test 
