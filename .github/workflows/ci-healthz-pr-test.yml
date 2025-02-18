@@ -32,8 +32,8 @@ jobs:
 
     - name: Create PostgreSQL User & Database
       run: |
-        sudo -u postgres psql -c "CREATE ROLE $DB_USER WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';"
-        sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+        sudo -u postgres psql -c "CREATE ROLE $DB_USERNAME WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';"
+        sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USERNAME;"
       env:
         DB_USERNAME: ${{ secrets.DB_USERNAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
