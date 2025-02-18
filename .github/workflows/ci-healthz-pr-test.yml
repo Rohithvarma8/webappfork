@@ -45,6 +45,6 @@ jobs:
       if: always()
       run: |
         echo "started cleaning"
-        pkill -P $$ || true  # Kill all child processes
+        pkill -P $$ || true  
         sudo systemctl stop postgresql  
         echo "done with cleaning"
