@@ -4,7 +4,7 @@ set -e
 BASE_DIR="/opt/csye6225"
 LINUX_GROUP="csye6225_cloud"
 LINUX_USER="rohith"
-ZIP_FILE="/tmp/webapp"
+ZIP_FILE="/tmp/webapp.zip"
 
 if [ ! -f "$ZIP_FILE" ]; then
   echo "Error: $ZIP_FILE not found!"
