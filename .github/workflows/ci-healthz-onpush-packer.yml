@@ -34,7 +34,7 @@ jobs:
         
       - name: Zipping Application
         run: |
-          zip -r webapp-fork.zip .
+          zip -r webapp.zip .
         working-directory: .
     
       - name: List artifact contents
