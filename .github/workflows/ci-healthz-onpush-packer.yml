@@ -53,11 +53,11 @@ jobs:
 
       - name: Run packer init
         working-directory: packer
-        run: packer init machine-image.pkr.hcl
+        run: packer init .
 
       - name: Run packer validate
         working-directory: packer
-        run: packer validate machine-image.pkr.hcl
+        run: packer validate .
 
       - name: Build AMI with Packer
         working-directory: packer
