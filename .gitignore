@@ -135,3 +135,5 @@ dist
 package-lock.json
 
 build.pkrvars.hcl
+
+webapp.zip

@@ -33,7 +33,7 @@ jobs:
         run: cat .env
         
       - name: Zipping Application
-        run: zip -r webapp.zip .
+        run: zip -r webapp.zip webapp
         working-directory: .
     
       - name: List artifact contents
