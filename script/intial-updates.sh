@@ -1,6 +1,8 @@
-#!bin/bash
+#!/bin/bash
+set -e 
 
 #update and upgrade
 
-sudo apt update
-sudo apt upgrade -y
+sudo apt-get update -y
+
+sudo apt-get upgrade -y

@@ -47,11 +47,6 @@ variable "aws-instance-type" {
   default     = "t2.micro"
 }
 
-variable "aws-source-ami" {
-  type    = string
-  default = ""
-}
-
 variable "aws-ssh-username" {
   type    = string
   default = "ubuntu"
@@ -82,37 +77,32 @@ variable "zip-path" {
   default = "" #built by using CI
 }
 
+variable "aws-profile" {
+  type    = string
+  default = "dev"
+}
 
 source "amazon-ebs" "aws-machine-image" {
 
   # profile to use in aws
-  profile = "dev"
+  profile = var.aws-profile
 
   #ami configuration
   ami_name        = "healthz-machine-image-${formatdate("YYYY_MM_DD", timestamp())}"
   ami_description = "Creating a custom image for healthz postgresDB"
 
   #access configuration
-  region     = var.aws-region
-  access_key = var.aws-access-key
-  secret_key = var.aws-secret-key
-
-  #polling configuration
-  aws_polling {
-    delay_seconds = 120
-    max_attempts  = 50
-  }
+  region = var.aws-region
 
   #run configuration
   instance_type = var.aws-instance-type
-  source_ami    = var.aws-source-ami
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
-      name                = "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*"
+      name                = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
       root-device-type    = "ebs"
     }
-    owners      = ["099720109477"]
+    owners      = ["099720109477"] # Canonical's official AWS account ID
     most_recent = true
   }
   subnet_id = var.aws-subnet-id
@@ -152,7 +142,7 @@ build {
   }
 
   provisioner "shell" {
-    script = "./../script/intial-updates.sh"
+    script = "../script/intial-updates.sh"
   }
 
   provisioner "shell" {
@@ -161,18 +151,18 @@ build {
       "DB_NAME=${var.db_name}",
       "DB_USER=${var.db_user}",
     ]
-    script = "./../script/db-node-install.sh"
+    script = "../script/db-node-install.sh"
   }
 
   provisioner "shell" {
-    script = "./../script/user-group-unzip.sh"
+    script = "../script/user-group-unzip.sh"
   }
 
   provisioner "shell" {
-    script = "./../script/install-modules.sh"
+    script = "../script/install-modules.sh"
   }
 
   provisioner "shell" {
-    script = "./../script/start-service.sh"
+    script = "../script/start-service.sh"
   }
 }

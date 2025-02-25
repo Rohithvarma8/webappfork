@@ -44,7 +44,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup packer
         uses: hashicorp/setup-packer@main
@@ -65,10 +65,13 @@ jobs:
         run: |
           packer build --force \
             -var "zip-path=$(pwd)/../webapp.zip" \
-            -var "aws-region=us-east-1" \
-            -var "aws-subnet-id=${{ secrets.AWS_SUBNET_ID }}" \
+            -var "aws-profile=dev" \
+            -var "aws-region=${{ secrets.AWS_REGION }}" \
+            -var "aws-instance-type=t2.micro" \
             -var "aws-ssh-username=ubuntu" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
+            -var "db_user=${{ secrets.DB_USERNAME }}" \
             -var "db_name=${{ secrets.DB_NAME }}" \
-            healthz-mi.pkr.hcl
+            -var "aws-subnet-id=${{ secrets.AWS_SUBNET_ID }}" \
+            .
 
