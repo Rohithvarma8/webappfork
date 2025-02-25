@@ -2,7 +2,7 @@
 set -e 
 
 BASE_DIR="/opt/csye6225"
-APP_DIR="$BASE_DIR"
+APP_DIR="$BASE_DIR/webapp"
 LINUX_USER="rohith"
 
 echo "INSTALL DEPENDENCIES"
