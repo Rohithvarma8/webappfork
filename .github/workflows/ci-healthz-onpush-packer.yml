@@ -3,7 +3,7 @@ name: Healthz Packer Build Machine image
 on:
   push:
     branches:
-        -main
+        - main
 
 env:
   PACKER_VERSION: "1.12.0"
