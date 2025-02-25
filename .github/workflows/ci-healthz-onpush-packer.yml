@@ -32,8 +32,12 @@ jobs:
       - name: List .env file contents
         run: cat .env
         
-      - name: Zipping Application
-        run: zip -r webapp.zip webapp
+      - name: Create webapp directory and zip structure
+        run: |
+          mkdir -p webapp_temp
+          cp -r * .* webapp_temp/ 2>/dev/null || true  # Copy all files, ignoring errors for special files
+          zip -r webapp.zip webapp_temp
+          mv webapp_temp webapp  # Rename to match expected directory
         working-directory: .
     
       - name: List artifact contents
