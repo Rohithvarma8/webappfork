@@ -133,3 +133,5 @@ dist
 .DS_Store
 
 package-lock.json
+
+var-passing.pkrvars.hcl

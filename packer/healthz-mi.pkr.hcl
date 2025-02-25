@@ -11,6 +11,16 @@ packer {
   }
 }
 
+variable "gcp-project-id" {
+  type    = string
+  default = "devproject-451800"
+}
+
+variable "gcp-zone" {
+  type    = string
+  default = "us-central1-a"
+}
+
 variable "aws-access-key" {
   type        = string
   description = "this is the access of aws"
@@ -116,6 +126,18 @@ source "amazon-ebs" "aws-machine-image" {
     delete_on_termination = true
     volume_size           = 25
     volume_type           = "gp2"
+  }
+}
+
+source "googlecompute" "app_image" {
+  project_id          = var.gcp_project_id
+  source_image_family = "ubuntu-2404-lts"
+  zone                = var.gcp_zone
+  ssh_username        = "ubuntu"
+  image_name          = "csye6225-app-{{timestamp}}"
+  image_family        = "csye6225-app"
+  image_labels = {
+    created-by = "packer"
   }
 }
 
