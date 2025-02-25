@@ -20,19 +20,18 @@ sudo useradd -m -g $LINUX_GROUP -s /bin/bash $LINUX_USER
 # Unzip the applications to /opt/csye6225
 echo "UNZIPPING APPLICATION"
 sudo mkdir -p "$BASE_DIR"
+sudo mkdir -p "$BASE_DIR/webapp"
 sudo unzip -o "$ZIP_FILE" -d "$BASE_DIR"
-mkdir -p "$BASE_DIR/webapp"
-mv "$BASE_DIR"/* "$BASE_DIR/webapp/"
-
+sudo mv "$BASE_DIR"/* "$BASE_DIR/webapp/" 2>/dev/null || true
 
 # Remove Mac OS X metadata directory if it exists
 sudo rm -rf "$BASE_DIR/__MACOSX"
 
 # List the contents to verify
 echo "Contents of $BASE_DIR:"
-ls -la "$BASE_DIR"
+sudo ls -la "$BASE_DIR"
 echo "Contents of $BASE_DIR/webapp (if exists):"
-ls -la "$BASE_DIR/webapp" || echo "webapp directory not found"
+sudo ls -la "$BASE_DIR/webapp" || echo "webapp directory not found"
 
 # Setting permissions
 echo "CHANGING PERMISSIONS AND OWNERSHIP"
