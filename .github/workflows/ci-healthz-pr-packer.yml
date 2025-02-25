@@ -5,7 +5,7 @@ on:
         branches: [main]
 
 env:
-  PRODUCT_VERSION: "1.12.0"  # packer version app using
+  PACKER_VERSION: "1.12.0"  # packer version app using
 
 jobs:
     packer-test:
@@ -18,17 +18,17 @@ jobs:
         - name: Setup packer
           uses: hashicorp/setup-packer@main
           with:
-            version: ${{ env.PRODUCT_VERSION }}
+            version: ${{ env.PACKER_VERSION }}
         
         - name: Intializing Packer
           working-directory: packer
-          run: packer init healthz-mi.pkr.hcl
+          run: packer init .
 
         - name: Formatting Packer
           working-directory: packer
-          run: packer fmt healthz-mi.pkr.hcl
+          run: packer fmt .
 
         - name: validate Packer
           working-directory: packer
-          run: packer validate healthz-mi.pkr.hcl
+          run: packer validate .
         
