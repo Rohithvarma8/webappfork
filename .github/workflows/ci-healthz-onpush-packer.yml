@@ -15,17 +15,17 @@ jobs:
       contents: read
     steps:
       - name: Check the Repo
-        uses: actions/checkout@
+        uses: actions/checkout@v4
 
       - name: Create .env file
         run: |
           cat <<EOF > .env
+          PORT=${{ secrets.PORT }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_PORT=${{ secrets.DB_PORT }}
-          DB_NAME=${{ secrets.DB_NAME }}
+          DB_NAME=${{ secrets.DB_USERNAME }}
           DB_USER=${{ secrets.DB_USER }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          DB_DIALECT=${{ secrets.DB_DIALECT }}
           EOF
         shell: bash
 
