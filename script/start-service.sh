@@ -12,8 +12,8 @@ After=network.target postgresql.service
 [Service]
 User=rohith
 Group=csye6225_cloud
-WorkingDirectory=/opt/csye6225/webapp
-ExecStart=/usr/bin/node /opt/csye6225/webapp/server.js
+WorkingDirectory=/opt/csye6225
+ExecStart=/usr/bin/node /opt/csye6225/server.js
 Restart=always
 
 [Install]
