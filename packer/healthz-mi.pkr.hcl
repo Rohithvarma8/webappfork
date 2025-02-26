@@ -107,7 +107,7 @@ source "amazon-ebs" "aws-machine-image" {
 
   #run configuration
   instance_type = var.aws-instance-type
-  source_ami   = var.aws-source-ami
+  source_ami    = var.aws-source-ami
   subnet_id     = var.aws-subnet-id
 
   #communicater configuration
