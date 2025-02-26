@@ -9,7 +9,52 @@ env:
   PACKER_VERSION: "1.12.0"
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+
+    steps:
+    - name: Check the Repo
+      uses: actions/checkout@v3
+
+    - name: Installing Postgres 
+      run: |
+        sudo apt update 
+        sudo apt install -y postgresql postgresql-contrib
+    
+    - name: Installing node_modules
+      run: npm install
+        
+    - name: Starting postgres Service
+      run: sudo systemctl start postgresql
+
+    - name: Database and user setup
+      run: |
+        sudo -u postgres psql -c "CREATE ROLE $DB_USERNAME WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';"
+        sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USERNAME;"
+
+    - name: dropping the table 
+      run: |
+          sudo -u postgres psql -d $DB_NAME -c 'DROP TABLE IF EXISTS "HealthChecks" CASCADE;'
+
+    - name: healthz api integration test
+      run: npm test
+
+    - name: post job clean up
+      if: always()
+      run: |
+        echo "started cleaning"
+        pkill -P $$ || true  
+        sudo systemctl stop postgresql  
+        echo "done with cleaning"
+
   packer-mi-generation:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -44,20 +89,30 @@ jobs:
         working-directory: packer
         run: packer validate .
 
-      
+      - name: Authenticate Cred for GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.SERVICE_KEY_GCP }}
+
+      - name: GCP SDK setup
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          install_components: 'beta,gsutil'
+
       - name: Authenticate with Google Cloud
         run: |
-          echo '${{ secrets.SERVICE_KEY_GCP }}' > gcp-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
-
-      - name: Build AMI with Packer
+          echo '${{ secrets.SERVICE_KEY_GCP}}' > $HOME/gcp-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcp-key.json" >> $GITHUB_ENV
+        shell: bash
+      
+      - name: Build AMI with Packer for both GCP and AWS
         working-directory: packer
         if: success()
         run: |
-          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/../gcp-key.json
           packer build --force \
             -var "zip-path=$(pwd)/../webapp.zip" \
-            -var "aws-profile=dev" \
+            -var "aws-profile=${{ secrets.AWS_PROFILE }}" \
             -var "aws-region=${{ secrets.AWS_REGION }}" \
             -var "aws-instance-type=t2.micro" \
             -var "aws-ssh-username=ubuntu" \
@@ -70,9 +125,6 @@ jobs:
             -var "aws-subnet-id=${{ secrets.AWS_SUBNET_ID }}" \
             -var "gcp-project-id=${{ secrets.GCP_PROJECT_ID }}" \
             -var "gcp-zone=${{ secrets.GCP_ZONE }}" \
-            -var "db_password=${{ secrets.DB_PASSWORD }}" \
-            -var "db_name=${{ secrets.DB_NAME }}" \
-            -var "db_user=${{ secrets.DB_USERNAME }}" \
             .
 
 
