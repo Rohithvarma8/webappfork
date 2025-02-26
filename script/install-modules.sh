@@ -25,6 +25,8 @@ DB_USER=${DB_USER}
 DB_PASSWORD=${DB_PASSWORD}
 EOF"
 
+echo " $PORT, $DB_HOST, $DB_NAME, $DB_USER, $DB_PORT, $DB_PASSWORD"
+
 # Set proper permissions for .env file
 sudo chown $LINUX_USER:$LINUX_GROUP "$APP_DIR/.env"
 sudo chmod 640 "$APP_DIR/.env"
