@@ -141,7 +141,7 @@ variable "gcp-image-family" {
 
 variable "gcp-machine-type" {
   type    = string
-  default = "e2.micro"
+  default = "e2-micro"
 }
 
 source "googlecompute" "gcp-machine-image" {
