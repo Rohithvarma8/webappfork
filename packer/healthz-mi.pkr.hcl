@@ -82,6 +82,21 @@ variable "aws-profile" {
   default = "dev"
 }
 
+variable "port" {
+  type    = string
+  default = ""
+}
+
+variable "db_host" {
+  type    = string
+  default = ""
+}
+
+variable "db_port" {
+  type    = string
+  default = ""
+}
+
 source "amazon-ebs" "aws-machine-image" {
 
   # profile to use in aws
@@ -160,6 +175,14 @@ build {
 
   provisioner "shell" {
     script = "../script/install-modules.sh"
+    environment_vars = [
+      "PORT=${var.port}",
+      "DB_HOST=${var.db_host}",
+      "DB_PORT=${var.db_port}",
+      "DB_NAME=${var.db_name}",
+      "DB_USER=${var.db_user}",
+      "DB_PASSWORD=${var.db_password}"
+    ]
   }
 
   provisioner "shell" {
