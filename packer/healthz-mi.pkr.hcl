@@ -11,16 +11,6 @@ packer {
   }
 }
 
-variable "gcp-project-id" {
-  type    = string
-  default = "devproject-451800"
-}
-
-variable "gcp-zone" {
-  type    = string
-  default = "us-central1-a"
-}
-
 variable "aws-access-key" {
   type        = string
   description = "this is the access of aws"
@@ -134,21 +124,46 @@ source "amazon-ebs" "aws-machine-image" {
   }
 }
 
-source "googlecompute" "app_image" {
-  project_id          = var.gcp_project_id
-  source_image_family = "ubuntu-2404-lts"
-  zone                = var.gcp_zone
-  ssh_username        = "ubuntu"
-  image_name          = "csye6225-app-{{timestamp}}"
-  image_family        = "csye6225-app"
+variable "gcp-project-id" {
+  type    = string
+  default = "devproject-451800"
+}
+
+variable "gcp-zone" {
+  type    = string
+  default = "us-central1-a"
+}
+
+variable "gcp-image-family" {
+  type    = string
+  default = "gcp-csye6225-cloud"
+}
+
+variable "gcp-machine-type" {
+  type    = string
+  default = "e2.micro"
+}
+
+source "googlecompute" "gcp-machine-image" {
+  project_id          = var.gcp-project-id
+  source_image_family = "ubuntu-2404-lts-amd64"
+  zone                = var.gcp-zone
+  ssh_username        = var.aws-ssh-username
+  image_name          = "gcp-csye6225-cloud-{{timestamp}}"
+  image_family        = var.gcp-image-family
   image_labels = {
     created-by = "packer"
   }
+  # Optional settings
+  machine_type = var.gcp-machine-type
+  network      = "default"
+  subnetwork   = "default"
 }
 
 build {
   sources = [
     "source.amazon-ebs.aws-machine-image",
+    "source.googlecompute.gcp-machine-image",
   ]
 
   provisioner "file" {
