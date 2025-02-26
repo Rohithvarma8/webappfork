@@ -18,8 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Zipping Application
-        run: |
-          zip -r webapp.zip .
+        run: zip -r webapp.zip .
         working-directory: .
     
       - name: List artifact contents
@@ -45,10 +44,17 @@ jobs:
         working-directory: packer
         run: packer validate .
 
+      
+      - name: Authenticate with Google Cloud
+        run: |
+          echo '${{ secrets.SERVICE_KEY_GCP }}' > gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
+
       - name: Build AMI with Packer
         working-directory: packer
         if: success()
         run: |
+          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/../gcp-key.json
           packer build --force \
             -var "zip-path=$(pwd)/../webapp.zip" \
             -var "aws-profile=dev" \
@@ -62,5 +68,13 @@ jobs:
             -var "db_host=${{ secrets.DB_HOST }}" \
             -var "db_port=${{ secrets.DB_PORT }}" \
             -var "aws-subnet-id=${{ secrets.AWS_SUBNET_ID }}" \
+            -var "gcp-project-id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var "gcp-zone=${{ secrets.GCP_ZONE }}" \
+            -var "db_password=${{ secrets.DB_PASSWORD }}" \
+            -var "db_name=${{ secrets.DB_NAME }}" \
+            -var "db_user=${{ secrets.DB_USERNAME }}" \
             .
 
+
+
+     
