@@ -15,6 +15,8 @@ Group=csye6225_cloud
 WorkingDirectory=/opt/csye6225/webapp
 ExecStart=/usr/bin/node /opt/csye6225/webapp/server.js
 Restart=always
+StandardOutput=append:/var/log/healthz.log
+StandardError=append:/var/log/healthz.log
 
 [Install]
 WantedBy=multi-user.target
