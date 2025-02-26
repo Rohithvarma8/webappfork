@@ -4,6 +4,7 @@ set -e
 BASE_DIR="/opt/csye6225"
 APP_DIR="$BASE_DIR/webapp"
 LINUX_USER="rohith"
+LINUX_GROUP="csye6225_cloud"
 
 echo "INSTALL DEPENDENCIES"
 
@@ -12,6 +13,21 @@ sudo ls -la "$BASE_DIR"
 
 echo "Contents of $APP_DIR (if exists):"
 sudo ls -la "$APP_DIR" || echo "webapp directory not found or empty"
+
+# Create .env file
+echo "CREATING .ENV FILE"
+sudo bash -c "cat > $APP_DIR/.env << EOF
+PORT=${PORT}
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_NAME=${DB_NAME}
+DB_USER=${DB_USER}
+DB_PASSWORD=${DB_PASSWORD}
+EOF"
+
+# Set proper permissions for .env file
+sudo chown $LINUX_USER:$LINUX_GROUP "$APP_DIR/.env"
+sudo chmod 640 "$APP_DIR/.env"
 
 echo "Checking for package.json in $APP_DIR"
 if sudo test -f "$APP_DIR/package.json"; then

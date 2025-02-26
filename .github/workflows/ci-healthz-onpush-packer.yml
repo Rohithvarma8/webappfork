@@ -73,6 +73,9 @@ jobs:
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
             -var "db_user=${{ secrets.DB_USERNAME }}" \
             -var "db_name=${{ secrets.DB_NAME }}" \
+            -var "port=${{ secrets.PORT }}" \
+            -var "db_host=${{ secrets.DB_HOST }}" \
+            -var "db_port=${{ secrets.DB_PORT }}" \
             -var "aws-subnet-id=${{ secrets.AWS_SUBNET_ID }}" \
             .
 
