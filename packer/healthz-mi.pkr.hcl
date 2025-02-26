@@ -59,7 +59,7 @@ variable "db_name" {
 
 variable "aws-subnet-id" {
   type    = string
-  default = ""
+  default = "subnet-005351033298940ef"
 }
 
 variable "zip-path" {
@@ -87,6 +87,12 @@ variable "db_port" {
   default = ""
 }
 
+#us-east-1
+variable "aws-source-ami" {
+  type    = string
+  default = "ami-001d163c4ca86a6ed"
+}
+
 source "amazon-ebs" "aws-machine-image" {
 
   # profile to use in aws
@@ -101,16 +107,8 @@ source "amazon-ebs" "aws-machine-image" {
 
   #run configuration
   instance_type = var.aws-instance-type
-  source_ami_filter {
-    filters = {
-      virtualization-type = "hvm"
-      name                = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
-      root-device-type    = "ebs"
-    }
-    owners      = ["099720109477"] # Canonical's official AWS account ID
-    most_recent = true
-  }
-  subnet_id = var.aws-subnet-id
+  source_ami   = var.aws-source-ami
+  subnet_id     = var.aws-subnet-id
 
   #communicater configuration
   ssh_username = var.aws-ssh-username
@@ -172,6 +170,10 @@ build {
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1",
+    ]
     script = "../script/intial-updates.sh"
   }
 
@@ -180,11 +182,17 @@ build {
       "DB_PASSWORD=${var.db_password}",
       "DB_NAME=${var.db_name}",
       "DB_USER=${var.db_user}",
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1",
     ]
     script = "../script/db-node-install.sh"
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1",
+    ]
     script = "../script/user-group-unzip.sh"
   }
 
@@ -196,11 +204,18 @@ build {
       "DB_PORT=${var.db_port}",
       "DB_NAME=${var.db_name}",
       "DB_USER=${var.db_user}",
-      "DB_PASSWORD=${var.db_password}"
+      "DB_PASSWORD=${var.db_password}",
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1",
     ]
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1",
+    ]
+
     script = "../script/start-service.sh"
   }
 }
