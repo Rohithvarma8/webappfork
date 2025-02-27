@@ -114,7 +114,7 @@ jobs:
             -var "zip-path=$(pwd)/../webapp.zip" \
             -var "aws-profile=${{ secrets.AWS_PROFILE }}" \
             -var "aws-region=${{ secrets.AWS_REGION }}" \
-            -var "aws-instance-type=t2.small" \
+            -var "aws-instance-type=t3.micro" \
             -var "aws-ssh-username=ubuntu" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
             -var "db_user=${{ secrets.DB_USERNAME }}" \
