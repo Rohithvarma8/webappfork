@@ -161,6 +161,7 @@ source "googlecompute" "gcp-machine-image" {
 build {
   sources = [
     "source.amazon-ebs.aws-machine-image",
+    "souce.googlecompute.gcp-machine-image",
   ]
 
   provisioner "file" {
@@ -214,8 +215,25 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1",
     ]
-
     script = "../script/start-service.sh"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "echo 'Checking for git installation...'",
+      "if which git > /dev/null; then",
+      "  echo 'Git is installed. Removing git...'",
+      "  sudo apt-get remove -y git || sudo yum remove -y git",
+      "  sudo apt-get autoremove -y || sudo yum autoremove -y",
+      "fi",
+      "# Verify git is no longer installed",
+      "if which git > /dev/null; then",
+      "  echo 'ERROR: git is still installed. AMI requirements not met!'",
+      "  exit 1",
+      "else",
+      "  echo 'SUCCESS: git is not installed in the AMI as required'",
+      "fi"
+    ]
   }
 }
 
