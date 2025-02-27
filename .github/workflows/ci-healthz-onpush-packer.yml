@@ -111,6 +111,7 @@ jobs:
         if: success()
         run: |
           packer build --force \
+            -only=source.amazon-ebs.aws-machine-image \
             -var "zip-path=$(pwd)/../webapp.zip" \
             -var "aws-profile=${{ secrets.AWS_PROFILE }}" \
             -var "aws-region=${{ secrets.AWS_REGION }}" \
