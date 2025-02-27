@@ -161,7 +161,6 @@ source "googlecompute" "gcp-machine-image" {
 build {
   sources = [
     "source.amazon-ebs.aws-machine-image",
-    "source.googlecompute.gcp-machine-image",
   ]
 
   provisioner "file" {
