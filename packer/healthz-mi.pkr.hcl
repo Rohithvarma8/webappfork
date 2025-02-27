@@ -90,7 +90,7 @@ variable "db_port" {
 #us-east-1
 variable "aws-source-ami" {
   type    = string
-  default = "ami-001d163c4ca86a6ed"
+  default = "ami-04a81a99f5ec58529"
 }
 
 source "amazon-ebs" "aws-machine-image" {
