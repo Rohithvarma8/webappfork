@@ -18,11 +18,6 @@ variable "aws-access-key" {
   default     = ""
 }
 
-variable "aws-region" {
-  type        = string
-  description = "provides the aws vpc region"
-  default     = "us-east-1"
-}
 
 variable "aws-secret-key" {
   type        = string
