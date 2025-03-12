@@ -12,7 +12,7 @@ packer {
 }
 
 variable "aws-access-key" {
-  type        = string
+  type       = string
   description = "this is the access of aws"
   sensitive   = true
   default     = ""
