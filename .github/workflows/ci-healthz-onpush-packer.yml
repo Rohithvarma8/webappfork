@@ -150,7 +150,4 @@ jobs:
             --launch-permission "Add=[{UserId=${{ secrets.AWS_DEMO_ACCOUNT_ID }} }]" \
             --region ${{ secrets.AWS_REGION }}
 
-
-
-
-     
+            
