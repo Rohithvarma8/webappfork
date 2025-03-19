@@ -1,12 +1,25 @@
 const express = require('express');
 const sequelize = require('../config/database');
 const healthCheckRoute = require('./route/healthCheckRoute');
+const fileUploadRoute = require('./route/fileUploadRoute');
 
 const initialize = (app) => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended : true }));
 
+    // check for database conn
+    sequelize.authenticate()
+    .then(() => console.log('Database connected'))
+    .catch((err) => {
+      console.error('Database connection failed:', err.message);
+    });
+
+  sequelize.sync({ alter: true })
+    .then(() => console.log('Database synchronized'))
+    .catch((err) => console.error('Database synchronization failed:', err.message));
+
+  app.use('/v1/file', fileUploadRoute);
 
   // Middleware to handle invalid JSON
   app.use((err, req, res, next) => {
@@ -17,7 +30,7 @@ const initialize = (app) => {
     next();
   });
 
-  // Reject payload for methods other than GEt
+  // Reject payload for methods other than GET
   app.use((req, res, next) => {
     if (req.method !== 'GET' && req.headers['content-type'] === 'application/json') {
       if (Object.keys(req.body).length === 0) {
@@ -26,17 +39,6 @@ const initialize = (app) => {
     }
     next();
   });
-
-  // check for database conn
-  sequelize.authenticate()
-    .then(() => console.log('Database connected'))
-    .catch((err) => {
-      console.error('Database connection failed:', err.message);
-    });
-
-  sequelize.sync({ alter: true })
-    .then(() => console.log('Database synchronized'))
-    .catch((err) => console.error('Database synchronization failed:', err.message));
 
   // Route
   app.use('/healthz', healthCheckRoute);
