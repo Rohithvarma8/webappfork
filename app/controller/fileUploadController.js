@@ -5,7 +5,7 @@ console.log("im here at controller")
 const fileController = {
     // Upload a new file
     uploadFile: async (req, res) => {
-        if (!req.profile_pic) {
+        if (!req.file) {
             return res.status(400).json({ error: 'No file provided' });
         }
 
