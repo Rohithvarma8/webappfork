@@ -5,6 +5,7 @@ console.log("im here at controller")
 const fileController = {
     // Upload a new file
     uploadFile: async (req, res) => {
+
         if (!req.file) {
             return res.status(400).json({ error: 'No file provided' });
         }
@@ -27,6 +28,20 @@ const fileController = {
     // Get file by ID
     getFileById: async (req, res) => {
         try {
+
+            if (req.is('multipart/form-data')) {
+                return res.status(400).json({ error: 'Form-data (multipart/form-data) is not allowed' });
+            }
+
+            if (req.query && Object.keys(req.query).length > 0) {
+                return res.status(400).json({ error: 'Query parameters are not allowed' });
+            }
+            
+            if (req.headers['content-length'] && parseInt(req.headers['content-length'], 10) > 0) {
+                console.log('No Payload!!!');
+                return res.status(400).send(); // Bad Request
+            }
+
             const profile_pic = await fileService.getFileById(req.params.id);
             
             if (!profile_pic) {
@@ -48,6 +63,21 @@ const fileController = {
     // Delete file by ID
     deleteFile: async (req, res) => {
         try {
+
+            if (req.is('multipart/form-data')) {
+                return res.status(400).json({ error: 'Form-data (multipart/form-data) is not allowed' });
+            }
+
+            if (req.query && Object.keys(req.query).length > 0) {
+                return res.status(400).json({ error: 'Query parameters are not allowed' });
+            }
+            
+            
+            if (req.headers['content-length'] && parseInt(req.headers['content-length'], 10) > 0) {
+                console.log('No Payload!!!');
+                return res.status(400).send(); // Bad Request
+            }
+
             const result = await fileService.deleteFile(req.params.id);
             
             if (result.notFound) {
