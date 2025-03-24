@@ -2,8 +2,6 @@ const SDK = require("aws-sdk");
 require('dotenv').config();
 
 SDK.config.update({
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SA_KEY,
     region: process.env.AWS_REGION
 });
 
