@@ -186,7 +186,7 @@ build {
     ]
     scripts = [
       "../script/db-node-install.sh",
-      "../
+      "../script/install-cloudwatch.sh",
     ]
 
   }
