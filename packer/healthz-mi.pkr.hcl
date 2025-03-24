@@ -184,7 +184,11 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1",
     ]
-    script = "../script/db-node-install.sh"
+    scripts = [
+      "../script/db-node-install.sh",
+      "../
+    ]
+
   }
 
   provisioner "shell" {
