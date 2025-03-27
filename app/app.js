@@ -3,7 +3,8 @@ const sequelize = require('../config/database');
 const healthCheckRoute = require('./route/healthCheckRoute');
 const fileUploadRoute = require('./route/fileUploadRoute');
 const logger = require('./utils/cloudwatchLogger');
-const { logRequest, handleServerErrors} = require('./middleware/metricMiddleware')
+const { logRequest, handleServerErrors} = require('./middleware/metricMiddleware');
+const metrics = require('./utils/cloudwatchMetrics');
 
 const initialize = (app) => {
 
@@ -38,6 +39,11 @@ const initialize = (app) => {
   app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
       logger.error('Invalid JSON payload received');
+      metrics.increment('api.error.400', 1, { 
+        reason: 'invalid_json',
+        method: req.method,
+        path: req.path 
+      });
       return res.status(400).send();
     }
     next();
@@ -60,6 +66,10 @@ const initialize = (app) => {
 
   app.use((req, res) => {
     logger.warn('Endpoint not found. Only /healthz and v1/file endpoints work.');
+    metrics.increment('api.error.404', 1, { 
+      method: req.method,
+      path: req.path 
+    });
     res.status(404).send(); // Send 404 status with no body
   });
 };
