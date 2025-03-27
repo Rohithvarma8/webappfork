@@ -2,29 +2,42 @@ const express = require('express');
 const sequelize = require('../config/database');
 const healthCheckRoute = require('./route/healthCheckRoute');
 const fileUploadRoute = require('./route/fileUploadRoute');
+const logger = require('./utils/cloudwatchLogger');
+const { logRequest, handleServerErrors} = require('./middleware/metricMiddleware')
 
 const initialize = (app) => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended : true }));
 
+  app.use((req, res, next) => {
+    logger.http(`Incoming request: ${req.method} ${req.url}`, {
+      headers: req.headers,
+      params: req.params,
+      query: req.query,
+    });
+    next();
+  });
+
     // check for database conn
     sequelize.authenticate()
-    .then(() => console.log('Database connected'))
+    .then(() => logger.info('Database connected'))
     .catch((err) => {
-      console.error('Database connection failed:', err.message);
+      logger.error('Database connection failed:', err.message);
     });
 
   sequelize.sync({ alter: true })
-    .then(() => console.log('Database synchronized'))
-    .catch((err) => console.error('Database synchronization failed:', err.message));
+    .then(() => logger.info('Database synchronized'))
+    .catch((err) => logger.error('Database synchronization failed:', err.message));
+
+  app.use(logRequest);
 
   app.use('/v1/file', fileUploadRoute);
 
   // Middleware to handle invalid JSON
   app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-      console.error('Invalid JSON payload received');
+      logger.error('Invalid JSON payload received');
       return res.status(400).send();
     }
     next();
@@ -43,8 +56,10 @@ const initialize = (app) => {
   // Route
   app.use('/healthz', healthCheckRoute);
 
+  app.use(handleServerErrors);
+
   app.use((req, res) => {
-    console.log('only healthz endpoint works');
+    logger.warn('Endpoint not found. Only /healthz and v1/file endpoints work.');
     res.status(404).send(); // Send 404 status with no body
   });
 };

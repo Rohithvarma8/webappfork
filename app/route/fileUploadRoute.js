@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const upload = multer();
 const fileController = require('./../controller/fileUploadController');
+const logger = require('./../utils/cloudwatchLogger');
 
 console.log("i'm here at rote");
 
@@ -12,11 +13,11 @@ router.post("/",
     upload.single('profile_pic'),(err, req, res, next) => {
         if (err instanceof multer.MulterError) {
             if (err.field !== 'profile_pic') {
-                console.log(err);
+                logger.warn("Invalid key for file upload", err);
                 return res.status(400).json({ error: 'only profile_pic works!!' });
             }
             if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-                console.log(err);
+                logger.warn("you can only send one one key and value(one file) with one request", err);
                 return res.status(400).json({ error: 'can send only one file at a time' });
             }
             return res.status(400).json({ error: err.message });
