@@ -16,7 +16,7 @@ const healthCheckStatus = async(req,res,err) => {
   // Check for queries
   if (Object.keys(req.query).length > 0) {
     res.setHeader('Cache-Control', 'no-cache');
-    log.warn('healthz endpoint will not accept any queries')
+    logger.warn('healthz endpoint will not accept any queries')
     return res.status(400).send(); // Bad Request
   }
   

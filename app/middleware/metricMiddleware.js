@@ -1,5 +1,5 @@
 const logger = require("./../utils/cloudwatchLogger");
-const metrics = require("./../utils/cloudwatchLogger");
+const metrics = require("./../utils/cloudwatchMetrics");
 
 const logRequest = (req, res, next) => {
     const requestStart = Date.now();
