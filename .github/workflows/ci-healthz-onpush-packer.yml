@@ -58,6 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      ami-id: ${{ steps.packer-mi-generation.outputs.ami_id }}
     steps:
       - name: Check the Repo
         uses: actions/checkout@v4
@@ -114,6 +116,7 @@ jobs:
           AMI_ID=$(grep -oP 'ami-[a-f0-9]+' $HOME/packer_output.log | tail -1)
           
           echo "ami-id=$AMI_ID" >> $GITHUB_ENV
+          echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
           
       - name: Share AWS AMI with Another AWS Account
         run: |
@@ -122,5 +125,63 @@ jobs:
             --launch-permission "Add=[{UserId=${{ secrets.AWS_DEMO_ACCOUNT_ID }} }]" \
             --region ${{ secrets.AWS_REGION }}
 
-            
+  deploy-new-ami:
+    needs: packer-mi-generation
+    runs-on: ubuntu-latest
+    env:
+      ASG_NAME: asg
+      LAUNCH_TEMPLATE_NAME: csye6225_asg
+      AMI_ID: ${{ needs.packer-mi-generation.outputs.ami_id }}
+    steps:
+      - name: Check the Repo
+        uses: actions/checkout@v4
+
+      - name: DEMO Account AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEMO }}
+          aws-secret-access-key: ${{ secrets.AAWS_SECRET_ACCESS_KEY_DEMO }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Creating a new Launch Template
+        id: launch_template_version
+        run: |
+          echo "Creating new launch template version with AMI ${{ env.AMI_ID }}..."  //change
+          NEW_LT_VERSION=$(aws ec2 create-launch-template-version \
+            --launch-template-name $LAUNCH_TEMPLATE_NAME \
+            --source-version '$Latest' \
+            --launch-template-data "{\"ImageId\":\"${{ env.AMI_ID }}\"}" \      //change
+            --query 'LaunchTemplateVersion.VersionNumber' --output text)
+          echo "New launch template version: $NEW_LT_VERSION"
+          echo "lt_version=$NEW_LT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Updating the Autoscaling for new template version
+        run: |
+          aws autoscaling update-auto-scaling-group \
+            --auto-scaling-group-name $ASG_NAME \
+            --launch-template "LaunchTemplateName=$LAUNCH_TEMPLATE_NAME,Version=${{ steps.launch_template_version.outputs.lt_version }}"
+
+      - name: Enabling the Instance Refresh on Autoscaling group
+        id: refresh_instance
+        run: |
+          REFRESH_ID=$(aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name $ASG_NAME \
+            --preferences '{"MinHealthyPercentage":90,"InstanceWarmup":60}' \
+            --query 'InstanceRefreshId' --output text)
+          echo "Instance refresh initiated with ID: $REFRESH_ID"
+          echo "refresh_id=$REFRESH_ID" >> $GITHUB_OUTPUT
+
+      - name: Waiting for instance to refresh
+        run: |
+          REFRESH_ID=${{ steps.refresh_instance.outputs.refresh_id }}
+          echo "Waiting for instance refresh with ID: $REFRESH_ID to complete..."
+          STATUS=$(aws autoscaling describe-instance-refreshes \
+            --auto-scaling-group-name $ASG_NAME \
+            --query "InstanceRefreshes[?InstanceRefreshId=='$REFRESH_ID'].Status" --output text)
+          echo "Initial refresh status: $STATUS"
+          while [[ "$STATUS" != "Successful" && "$STATUS" != "Failed" ]]; do
+            sleep 30
+            STATUS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name $ASG_NAME \
+              --query "InstanceRefreshes[?InstanceRefreshId=='$          
             
