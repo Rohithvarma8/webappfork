@@ -129,8 +129,8 @@ jobs:
     needs: packer-mi-generation
     runs-on: ubuntu-latest
     env:
-      ASG_NAME: asg
-      LAUNCH_TEMPLATE_NAME: csye6225_asg
+      ASG_NAME: csye6225_asg
+      LAUNCH_TEMPLATE_NAME: webapp-launch-template
       AMI_ID: ${{ needs.packer-mi-generation.outputs.ami_id }}
     steps:
       - name: Check the Repo
