@@ -59,7 +59,7 @@ jobs:
     permissions:
       contents: read
     outputs:
-      ami-id: ${{ steps.extract_packer_outputs.outputs.ami_id }}
+      ami_id: ${{ steps.extract_packer_outputs.outputs.ami_id }}
     steps:
       - name: Check the Repo
         uses: actions/checkout@v4
