@@ -75,3 +75,4 @@ const initialize = (app) => {
 };
 
 module.exports = initialize;
+
