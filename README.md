@@ -151,3 +151,13 @@ Enter following commands to stop the service:
 - The `/healthz` endpoint only supports the **GET** method.
 - The service does not accept request payloads or query parameters.
 
+## Command for SSL
+
+```
+aws acm import-certificate \
+  --certificate fileb:////Users/rohithvarmadatla/Downloads/demo_rohithvarmadatla_me/demo_rohithvarmadatla_me.crt \
+  --private-key fileb:///Users/rohithvarmadatla/demo.rohithvarmadatla.me.key \
+  --certificate-chain fileb:////Users/rohithvarmadatla/Downloads/demo_rohithvarmadatla_me/demo_rohithvarmadatla_me.ca-bundle \
+  --region us-east-1
+```
+
