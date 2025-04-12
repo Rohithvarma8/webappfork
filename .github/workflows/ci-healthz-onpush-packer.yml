@@ -183,12 +183,17 @@ jobs:
           REFRESH_ID=${{ steps.refresh_instance.outputs.refresh_id }}
           echo "Waiting for instance refresh with ID: $REFRESH_ID to complete..."
           STATUS=$(aws autoscaling describe-instance-refreshes \
-            --auto-scaling-group-name $ASG_NAME \
-            --query "InstanceRefreshes[?InstanceRefreshId=='$REFRESH_ID'].Status" --output text)
+            --auto-scaling-group-name "$ASG_NAME" \
+            --query "InstanceRefreshes[?InstanceRefreshId=='${REFRESH_ID}'].Status" \
+            --output text)
           echo "Initial refresh status: $STATUS"
           while [[ "$STATUS" != "Successful" && "$STATUS" != "Failed" ]]; do
             sleep 30
             STATUS=$(aws autoscaling describe-instance-refreshes \
-              --auto-scaling-group-name $ASG_NAME \
-              --query "InstanceRefreshes[?InstanceRefreshId=='$          
+              --auto-scaling-group-name "$ASG_NAME" \
+              --query "InstanceRefreshes[?InstanceRefreshId=='${REFRESH_ID}'].Status" \
+              --output text)
+              echo "Current refresh status: $STATUS"
+          done
+                 
             
