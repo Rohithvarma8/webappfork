@@ -120,9 +120,10 @@ jobs:
       - name: Share AWS AMI with Another AWS Account
         run: |
           aws ec2 modify-image-attribute \
-            --image-id ${{ env.ami-id }} \
+            --image-id ${{ steps.extract_packer_outputs.outputs.ami_id }} \
             --launch-permission "Add=[{UserId=${{ secrets.AWS_DEMO_ACCOUNT_ID }} }]" \
             --region ${{ secrets.AWS_REGION }}
+        
 
   deploy-new-ami:
     needs: packer-mi-generation
